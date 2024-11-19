@@ -7,7 +7,7 @@ node {
     }
 
     stage('Build image') {
-       app = docker.build("dockerfile")
+       app = docker.build("cw2-server")
     }
 
     stage('Test image') {
