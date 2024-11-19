@@ -1,6 +1,7 @@
 var http = require('http');
 var requests=0;
 var podname= process.env.HOSTNAME;
+process.env.BUILD_VERSION = '1.0'
 var startTime;
 var host;
 
