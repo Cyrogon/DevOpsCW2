@@ -17,7 +17,7 @@ node {
     }
 
     stage('Push image') {
-        docker.withRegistry('https://registry.hub.docker.com', 'docker') {
+        docker.withRegistry('https://hub.docker.com/repository/docker/chrissyboyo/cw2-server', 'docker') {
             app.push("${env.BUILD_VERSION}")
             app.push("latest")
         }
