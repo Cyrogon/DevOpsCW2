@@ -24,7 +24,7 @@ node {
     }
 
     stage('Update deployment') {
-        sshagent(credentials: ['ProdServer']) {
+        sshagent(['ProdServer']) {
             sh 'kubectl rollout restart deployment cw2-server'
         }
     }
