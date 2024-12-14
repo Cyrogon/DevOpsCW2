@@ -12,7 +12,7 @@ node {
 
     stage('Test image') {
         app.inside {
-            sh 'echo "Echo from within Container Sucsessful"'
+            sh 'curl localhost:8080'
         }
     }
 
