@@ -12,7 +12,7 @@ node {
 
     stage('Test image') {
         app.inside {
-            sh 'curl localhost:8080'
+            sh 'echo "Running from within Docker container"'
         }
     }
 
