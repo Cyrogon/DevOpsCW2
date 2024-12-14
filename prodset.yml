@@ -1,5 +1,4 @@
-
-- name: Playbook to Install Docker, Minikube, and Deploy a Kubernetes Application
+- name: Playbook to Install Minikube, K8s and Deploy a Kubernetes Application
   hosts: network_machines
   user: cyrogon
   become: true
@@ -44,7 +43,7 @@
 
   - name: 8. Pull Docker Image
     become: false
-    command: docker pull chrissyboyo/cw2-server
+    command: docker pull chrissyboyo/cw2-server:V1.0
 
   - name: 9. Create Kubernetes Deployment
     copy:
