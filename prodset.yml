@@ -1,0 +1,105 @@
+
+- name: Playbook to Install Docker, Minikube, and Deploy a Kubernetes Application
+  hosts: network_machines
+  user: cyrogon
+  become: true
+
+  vars:
+    default_user: "{{ lookup('env', 'USER') | default('cyrogon') }}"
+
+  tasks:
+
+  - name: 1. Get Kubernetes APT key
+    shell: curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | gpg --dearmor -o /usr/share/keyrings/kubernetes-apt-keyring.gpg
+    args:
+      creates: "/usr/share/keyrings/kubernetes-apt-keyring.gpg"
+
+  - name: 2. Install Kubernetes repository
+    apt_repository:
+      filename: kubernetes
+      repo: "deb [signed-by=/usr/share/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /"
+
+  - name: 3. Update Package Manager
+    apt:
+      update_cache: yes
+
+  - name: 4. Install kubectl
+    apt:
+      name: kubectl
+      state: present
+
+  - name: 5. Download Minikube
+    get_url:
+      url: https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+      dest: /usr/local/bin/minikube
+
+  - name: 6. Make Minikube Executable
+    file:
+      path: /usr/local/bin/minikube
+      mode: '0777'
+
+  - name: 7. Start Minikube
+    become: false
+    command: minikube start
+
+  - name: 8. Pull Docker Image
+    become: false
+    command: docker pull chrissyboyo/cw2-server
+
+  - name: 9. Create Kubernetes Deployment
+    copy:
+      dest: "/home/{{ default_user }}/ansible/deployment.yaml"
+      content: |
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: cw2-server
+        spec:
+          replicas: 3
+          selector:
+            matchLabels:
+              app: cw2-server
+          template:
+            metadata:
+              labels:
+                app: cw2-server
+            spec:
+              containers:
+              - name: cw2-server
+                image: chrissyboyo/cw2-server:V1.0
+                imagePullPolicy: Always
+                ports:
+                - containerPort: 8080
+      mode: '0777'
+      owner: "{{ default_user }}"
+      group: "{{ default_user }}"
+
+  - name: 10. Apply Kubernetes Deployment
+    command: kubectl apply -f "/home/{{ default_user }}/ansible/deployment.yaml"
+    environment:
+      KUBECONFIG: "/home/{{ default_user }}/.kube/config"
+
+  - name: 11. Create Kubernetes Service
+    copy:
+      dest: "/home/{{ default_user }}/ansible/service.yaml"
+      content: |
+        kind: Service 
+        apiVersion: v1 
+        metadata:
+          name: cw2-server
+        spec:
+          type: NodePort
+          selector:
+            app: cw2-server
+          ports:
+            - nodePort: 30163
+              port: 8080
+              protocol: TCP
+      mode: '0777'
+      owner: "{{ default_user }}"
+      group: "{{ default_user }}"
+
+  - name: 12. Apply Kubernetes Service
+    command: kubectl apply -f "/home/{{ default_user }}/ansible/service.yaml"
+    environment:
+      KUBECONFIG: "/home/{{ default_user }}/.kube/config"
