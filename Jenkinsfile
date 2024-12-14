@@ -22,4 +22,10 @@ node {
             app.push("latest")
         }
     }
+
+    stage('Update deployment') {
+        sshagent(['ProdServer']) {
+            sh 'kubectl rollout restart deployment cw2-server'
+        }
+    }
 }
