@@ -25,7 +25,10 @@ node {
 
     stage('Update deployment') {
         sshagent(['ProdServer']) {
-            sh 'kubectl rollout restart deployment cw2-server'
+            sh '''
+            ssh cyrogon@192.168.0.192
+            kubectl rollout restart deployment cw2-server
+            '''
         }
     }
 }
