@@ -8,7 +8,7 @@ WORKDIR /usr/src/app
 COPY server.js .
 
 # Expose the port the application runs on
-EXPOSE 8080
+EXPOSE 80
 
 # Command to run the application
 CMD ["node", "server.js"]
